@@ -7,20 +7,16 @@ go run server/main.go
 go run client/main.go
 ```
 
-with `io.Copy(ioutil.Discard, resp.Body)` in `makeReq`:
+`io.Copy(ioutil.Discard, resp.Body)` is needed to release the sockets.
+This is what it looks like when you don't discard the body:
 
-```text
-made 922 requests
-made 923 requests
-panic: Get http://localhost:8080: dial tcp: lookup localhost: too many open files
-
-goroutine 4548 [running]:
-```
-
-without discarding the body:
-
-```text
-made 28209 requests
-made 28211 requests
-panic: Get http://localhost:8080: dial tcp 127.0.0.1:8080: connect: cannot assign requested address
+```bash
+$ netstat
+...
+tcp        0      0 localhost:47176         localhost:http-alt      TIME_WAIT
+tcp        0      0 localhost:42310         localhost:http-alt      TIME_WAIT
+tcp        0      0 localhost:34137         localhost:http-alt      TIME_WAIT
+tcp        0      0 localhost:59068         localhost:http-alt      TIME_WAIT
+tcp        0      0 localhost:46366         localhost:http-alt      TIME_WAIT
+...
 ```
