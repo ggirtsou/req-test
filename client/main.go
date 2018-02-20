@@ -7,10 +7,13 @@ import (
 	"net/http"
 )
 
+const (
+	maxConcurrency = 100
+)
+
 func main() {
 	var i int
 
-	maxConcurrency := 100
 	tokens := make(chan struct{}, maxConcurrency)
 	for i := 0; i < maxConcurrency; i++ {
 		tokens <- struct{}{}
@@ -27,9 +30,12 @@ func main() {
 	}
 }
 
+var (
+	tr     = http.Transport{MaxIdleConns: maxConcurrency, MaxIdleConnsPerHost: maxConcurrency}
+	client = &http.Client{Transport: &tr}
+)
+
 func makeReq() {
-	tr := http.Transport{MaxIdleConns: 1}
-	client := &http.Client{Transport: &tr}
 	resp, err := client.Get("http://localhost:8080")
 	if err != nil {
 		panic(err)
