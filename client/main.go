@@ -8,7 +8,8 @@ import (
 )
 
 const (
-	maxConcurrency = 100
+	maxConcurrency = 800
+	maxIdle        = 1000
 )
 
 func main() {
@@ -31,7 +32,7 @@ func main() {
 }
 
 var (
-	tr     = http.Transport{MaxIdleConns: maxConcurrency, MaxIdleConnsPerHost: maxConcurrency}
+	tr     = http.Transport{MaxIdleConns: maxIdle, MaxIdleConnsPerHost: maxIdle}
 	client = &http.Client{Transport: &tr}
 )
 
@@ -41,7 +42,7 @@ func makeReq() {
 		panic(err)
 	}
 
-	// if you remove this, you end up making more requests
+	// if you remove this, sockets won't be released
 	io.Copy(ioutil.Discard, resp.Body)
 
 	// do not remove this
